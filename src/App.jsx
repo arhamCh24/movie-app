@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import Search from "./components/Search";
 import Spinner from "./components/Spinner";
 import MovieCard from "./components/MovieCard";
+import MovieModal from "./components/MovieModal";
 import { useDebounce } from "react-use";
 import { getTrendingMovies, updateSearchCount } from "./appwrite";
 
@@ -28,6 +29,9 @@ const App = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const [trendingMovies, setTrendingMovies] = useState([]);
+
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedMovie, setSelectedMovie] = useState(null);
 
   // Debounce the search term to prvent making too many API requests
   // by waiting for the user to stop typing for 500ms
@@ -128,11 +132,24 @@ const App = () => {
           ) : (
             <ul>
               {movieList.map((movie) => (
-                <MovieCard key={movie.id} movie={movie} />
+                <MovieCard
+                  key={movie.id}
+                  movie={movie}
+                  onClick={() => {
+                    setIsOpen(true);
+                    setSelectedMovie(movie);
+                  }}
+                />
               ))}
             </ul>
           )}
         </section>
+
+        <MovieModal
+          isOpen={isOpen}
+          setIsOpen={setIsOpen}
+          movie={selectedMovie}
+        />
       </div>
     </main>
   );

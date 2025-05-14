@@ -4,7 +4,7 @@ const Spinner = () => {
   return (
     <div role="status">
       <svg
-        ariaHidden="true"
+        aria-hidden="true"
         className="w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-indigo-600 mx-auto"
         viewBox="0 0 100 101"
         fill="none"
