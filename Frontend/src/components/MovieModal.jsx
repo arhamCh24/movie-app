@@ -1,6 +1,9 @@
-const MovieModal = ({ isOpen, setIsOpen, movie }) => {
+import DOMPurify from "dompurify";
+
+const MovieModal = ({ isOpen, setIsOpen, movie, response, isLoading }) => {
   if (!isOpen || !movie) return null;
 
+  const sanitizedHTML = DOMPurify.sanitize(response);
   const {
     title,
     vote_average,
@@ -70,6 +73,17 @@ const MovieModal = ({ isOpen, setIsOpen, movie }) => {
             <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">
               {overview || "No overview available."}
             </p>
+            <hr />
+            {isLoading ? (
+              <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">
+                Writing...
+              </p>
+            ) : (
+              <div
+                className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed"
+                dangerouslySetInnerHTML={{ __html: sanitizedHTML }}
+              />
+            )}
           </div>
         </div>
       </div>

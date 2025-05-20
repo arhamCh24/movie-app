@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Search from "./components/Search";
 import Spinner from "./components/Spinner";
 import MovieCard from "./components/MovieCard";
@@ -32,6 +32,8 @@ const App = () => {
 
   const [isOpen, setIsOpen] = useState(false);
   const [selectedMovie, setSelectedMovie] = useState(null);
+
+  const [response, setResponse] = useState("");
 
   // Debounce the search term to prvent making too many API requests
   // by waiting for the user to stop typing for 500ms
@@ -93,6 +95,32 @@ const App = () => {
     loadTrendingMovies();
   }, []);
 
+  // Connect to the Server 'AI'
+
+  const handleSubmit = async (input) => {
+    setIsLoading(true);
+    setResponse("");
+
+    try {
+      let res = await fetch("http://localhost:5050/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: input }),
+      });
+      let data = await res.json();
+      if (res.ok) {
+        setResponse(data.response);
+      } else {
+        setResponse("Error from API: " + data.error);
+      }
+    } catch (err) {
+      console.error("Error calling backend:", err);
+      setResponse("Failed to connect to backend.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <main>
       <div className="pattern" />
@@ -138,6 +166,30 @@ const App = () => {
                   onClick={() => {
                     setIsOpen(true);
                     setSelectedMovie(movie);
+                    handleSubmit(`
+You are a movie expert. Based on the following movie details, generate an HTML-formatted description using only <h3>, <p>, and <b> tags. Do not include the movie title in your response, as it is already displayed.
+
+This movie Details is only for you to get more information about movies:
+- Movie Name: ${movie.title}
+- Rating: ${movie.vote_average}
+- Release Date: ${movie.release_date}
+- Language: ${movie.original_language}
+- Overview: ${movie.overview}
+
+Instructions:
+- Provide a <p><b>Stars:</b> ...</p> line with comma-separated actor names of the actual movie.
+- Provide a <p><b>Director:</b> ...</p> line with comma-separated director names of the actual movie.
+- Provide a <p><b>Writers:</b> ...</p> line with comma-separated writers names of the actual movie.
+- Provide a <p><b>Rating:</b> ...</p> line display rating like this example: (e.g., ★ actual_rating/10).
+- provide a <p><b>Genres:</b>such as Action, Adventure, Sci-Fi, change this with actual movie Genres, if not availble just write 'Not Available'</p>
+- provide a <p><b>Runtime:</b> such as 2h 15m, change this with actual movie runtime</p>
+- Provide a <p><b>Production:</b> such as Marvel Studios, Paramount Pictures, change this with actual movie production</p>
+- Provide a <p><b>Awards:</b> such as 3 Oscars, 5 Golden Globe Nominations, change this with actual movie Awards</p>
+- Provide a <p><b>Release Country:</b> such as USA, change this with actual release country</p>
+- Include a <h3><b>Summary</b></h3> heading followed by a <p> with a detailed movie summary. Note: please must give me detailed summary or movie.
+- Ensure the HTML is well-structured, don't add staring html point and ending on the start and end and can be rendered directly, and make sure to add 'Not Available' if you not find any of them such as Starring, Director, Rating, etc, don't add anything wrong on your end.
+
+`);
                   }}
                 />
               ))}
@@ -149,8 +201,23 @@ const App = () => {
           isOpen={isOpen}
           setIsOpen={setIsOpen}
           movie={selectedMovie}
+          response={response}
+          isLoading={isLoading}
         />
       </div>
+
+      {/* <section className="bg-gradient-to-r bg-indigo-300 text-black">
+        <button
+          onClick={() => handleSubmit("What's the day today?")}
+          disabled={isLoading}
+          className={`w-full bg-blue-500 ${
+            isLoading ? "opacity-50 cursor-not-allowed" : ""
+          }`}
+        >
+          {isLoading ? "Loading..." : "Get AI Response"}
+        </button>
+        {response && <div>{response}</div>}
+      </section> */}
     </main>
   );
 };
