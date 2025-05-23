@@ -35,6 +35,10 @@ const App = () => {
 
   const [response, setResponse] = useState("");
 
+  const [chatInput, setChatInput] = useState("");
+  const [chatMessages, setChatMessages] = useState("");
+  const [isChatMessagesLoading, setIsChatMessagesLoading] = useState(false);
+
   // Debounce the search term to prvent making too many API requests
   // by waiting for the user to stop typing for 500ms
   useDebounce(() => setDebouncedSearchedTerm(searchTerm), 500, [searchTerm]);
@@ -121,6 +125,32 @@ const App = () => {
     }
   };
 
+  // chatting with AI functionality
+
+  const handleChatSubmit = async (message) => {
+    setIsChatMessagesLoading(true);
+    setChatMessages("");
+
+    try {
+      let res = await fetch("http://localhost:5050/api/chat", {
+        method: "POST",
+        headers: { "content-Type": "application/json" },
+        body: JSON.stringify({ prompt: message }),
+      });
+      let data = await res.json();
+      if (res.ok) {
+        setChatMessages(data.response);
+      } else {
+        setChatMessages("Error, Please try again later");
+      }
+    } catch (error) {
+      console.log("Error Calling Backend: ", error);
+      setChatMessages("Error, Please try again later");
+    } finally {
+      setIsChatMessagesLoading(false);
+    }
+  };
+
   return (
     <main>
       <div className="pattern" />
@@ -180,7 +210,7 @@ Instructions:
 - Provide a <p><b>Stars:</b> ...</p> line with comma-separated actor names of the actual movie.
 - Provide a <p><b>Director:</b> ...</p> line with comma-separated director names of the actual movie.
 - Provide a <p><b>Writers:</b> ...</p> line with comma-separated writers names of the actual movie.
-- Provide a <p><b>Rating:</b> ...</p> line display rating like this example: (e.g., ★ actual_rating/10).
+- Provide a <p><b>Rating:</b> ...</p> line display rating like this example: (e.g., ★ actual_rating/10), make sure actual rating will one digit after dot.
 - provide a <p><b>Genres:</b>such as Action, Adventure, Sci-Fi, change this with actual movie Genres, if not availble just write 'Not Available'</p>
 - provide a <p><b>Runtime:</b> such as 2h 15m, change this with actual movie runtime</p>
 - Provide a <p><b>Production:</b> such as Marvel Studios, Paramount Pictures, change this with actual movie production</p>
@@ -203,21 +233,13 @@ Instructions:
           movie={selectedMovie}
           response={response}
           isLoading={isLoading}
+          handleChatSubmit={handleChatSubmit}
+          chatInput={chatInput}
+          setChatInput={setChatInput}
+          chatMessages={chatMessages}
+          isChatMessagesLoading={isChatMessagesLoading}
         />
       </div>
-
-      {/* <section className="bg-gradient-to-r bg-indigo-300 text-black">
-        <button
-          onClick={() => handleSubmit("What's the day today?")}
-          disabled={isLoading}
-          className={`w-full bg-blue-500 ${
-            isLoading ? "opacity-50 cursor-not-allowed" : ""
-          }`}
-        >
-          {isLoading ? "Loading..." : "Get AI Response"}
-        </button>
-        {response && <div>{response}</div>}
-      </section> */}
     </main>
   );
 };

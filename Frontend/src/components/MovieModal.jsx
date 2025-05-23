@@ -1,6 +1,17 @@
 import DOMPurify from "dompurify";
 
-const MovieModal = ({ isOpen, setIsOpen, movie, response, isLoading }) => {
+const MovieModal = ({
+  isOpen,
+  setIsOpen,
+  movie,
+  response,
+  isLoading,
+  handleChatSubmit,
+  chatInput,
+  setChatInput,
+  chatMessages,
+  isChatMessagesLoading,
+}) => {
   if (!isOpen || !movie) return null;
 
   const sanitizedHTML = DOMPurify.sanitize(response);
@@ -12,6 +23,14 @@ const MovieModal = ({ isOpen, setIsOpen, movie, response, isLoading }) => {
     original_language,
     overview,
   } = movie;
+
+  const friendlyResponse = `You are a movie information assistant specializing in the film ${title}.
+Guidelines:
+1. Primary Focus: Provide detailed and accurate information solely about the movie ${title}.
+2. Handling Other Inquiries: If a user asks about any other movie or unrelated topic, respond with: "I'm here to assist you with information about ${title}. Please ask me anything related to this movie."
+3. General Questions: For general questions that could pertain to ${title} (e.g., "Is it good?", "Tell me about this"), interpret them in the context of ${title} and provide relevant information.
+4. Insufficient Information: If you lack accurate information to answer a question about ${title}, respond with: "Sorry, unfortunately, I don't have any information on that."
+5. Avoiding Irrelevant Topics: Do not discuss topics outside the scope of ${title}.`;
 
   return (
     <div className="fixed inset-0 z-50 flex justify-center items-center bg-black bg-opacity-60 px-4">
@@ -79,10 +98,42 @@ const MovieModal = ({ isOpen, setIsOpen, movie, response, isLoading }) => {
                 Writing...
               </p>
             ) : (
-              <div
-                className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed"
-                dangerouslySetInnerHTML={{ __html: sanitizedHTML }}
-              />
+              <>
+                <div
+                  className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed"
+                  dangerouslySetInnerHTML={{ __html: sanitizedHTML }}
+                />
+                <hr />
+                <div className=" text-gray-700 dark:text-gray-300 ">
+                  <div className="w-full bg-light-100/5 px-2 py-1 rounded-lg mt-1 max-w-3xl mx-auto">
+                    <div className="relative flex items-center">
+                      <input
+                        type="text"
+                        value={chatInput}
+                        onChange={(e) => setChatInput(e.target.value)}
+                        placeholder={`Ask anything about ${title}`}
+                        className="w-full bg-transparent py-1 sm:pr-10 pl-1 text-base text-gray-200 placeholder-light-200 outline-hidden"
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            handleChatSubmit(friendlyResponse + chatInput);
+                            setChatInput("");
+                          }
+                        }}
+                      />
+                      <button
+                        onClick={() => {
+                          handleChatSubmit(friendlyResponse + chatInput);
+                          setChatInput("");
+                        }}
+                        disabled={isChatMessagesLoading}
+                      >
+                        {isChatMessagesLoading ? "🔄" : "➡️"}
+                      </button>
+                    </div>
+                  </div>
+                  <p>{chatMessages}</p>
+                </div>
+              </>
             )}
           </div>
         </div>
