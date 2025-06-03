@@ -196,8 +196,9 @@ const App = () => {
                   onClick={() => {
                     setIsOpen(true);
                     setSelectedMovie(movie);
+                    setChatMessages("");
                     handleSubmit(`
-You are a movie expert. Based on the following movie details, generate an HTML-formatted description using only <h3>, <p>, and <b> tags. Do not include the movie title in your response, as it is already displayed.
+You are a movie expert, your main goal is to give accurate information to a users. Based on the following movie details, generate an HTML-formatted description using only <h3>, <p>, and <b> tags. Do not include the movie title in your response, as it is already displayed.
 
 This movie Details is only for you to get more information about movies:
 - Movie Name: ${movie.title}
@@ -216,8 +217,8 @@ Instructions:
 - Provide a <p><b>Production:</b> such as Marvel Studios, Paramount Pictures, change this with actual movie production</p>
 - Provide a <p><b>Awards:</b> such as 3 Oscars, 5 Golden Globe Nominations, change this with actual movie Awards</p>
 - Provide a <p><b>Release Country:</b> such as USA, change this with actual release country</p>
-- Include a <h3><b>Summary</b></h3> heading followed by a <p> with a detailed movie summary. Note: please must give me detailed summary or movie.
-- Ensure the HTML is well-structured, don't add staring html point and ending on the start and end and can be rendered directly, and make sure to add 'Not Available' if you not find any of them such as Starring, Director, Rating, etc, don't add anything wrong on your end.
+- Include a <h3 className="text-2xl><b>Summary</b></h3> heading followed by a <p> with a detailed movie summary. Note: please must give me detailed summary or movie.
+- Ensure the HTML is well-structured, don't add staring html point and ending on the start and end and can be rendered directly, and make sure to find infromation from the legal website but unfortunately, you are unable to find accurate information then just add 'Not Available' if you not find any of them such as Starring, Director, Rating, etc, don't add anything wrong on your end.
 
 `);
                   }}

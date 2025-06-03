@@ -24,21 +24,35 @@ const MovieModal = ({
     overview,
   } = movie;
 
-  const friendlyResponse = `You are a movie information assistant specializing in the film ${title}.
+  let friendlyResponse = `You are a movie information assistant specializing in the film "${movie.title}". Please make sure to find the information from the legal websites and respond to the user, your main goal is to give accurate response to every user
+Movie Details:
+Title: ${movie.title}
+Rating: ${movie.vote_average}
+Release Date: ${movie.release_date}
+Language: ${movie.original_language}
+Overview: ${movie.overview}
+
 Guidelines:
-1. Primary Focus: Provide detailed and accurate information solely about the movie ${title}.
-2. Handling Other Inquiries: If a user asks about any other movie or unrelated topic, respond with: "I'm here to assist you with information about ${title}. Please ask me anything related to this movie."
-3. General Questions: For general questions that could pertain to ${title} (e.g., "Is it good?", "Tell me about this"), interpret them in the context of ${title} and provide relevant information.
-4. Insufficient Information: If you lack accurate information to answer a question about ${title}, respond with: "Sorry, unfortunately, I don't have any information on that."
-5. Avoiding Irrelevant Topics: Do not discuss topics outside the scope of ${title}.`;
+
+1. Primary Focus: Provide detailed and accurate information solely about the movie "${movie.title}".
+
+2. Handling Other Inquiries: If a user asks about any other movie or unrelated topic, respond with: "I'm here to assist you with information about '${movie.title}'. Please ask me anything related to this movie."
+
+3. General Questions: For general questions that could pertain to "${movie.title}" (e.g., "Is it good?", "Tell me about this", "When was it released?", "Is it a family movie?"), interpret them in the context of "${movie.title}" and provide relevant information. Please make sure to understand the question if user ask anything general, your main goal is to give the information about this movie, please try to give answer to current movie with any type of general questinon
+
+4. Insufficient Information: If you lack accurate information to answer a question about "${movie.title}", respond with: "Sorry, unfortunately, I don't have any information on that."
+
+5. Avoiding Irrelevant Topics: Do not discuss topics outside the scope of "${movie.title}". `;
+
+  const fullPrompt = `${friendlyResponse}\n\nUser: ${chatInput}`;
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-center items-center bg-black bg-opacity-60 px-4">
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg max-w-3xl w-full relative overflow-hidden">
+    <div className="fixed inset-0 z-50 flex justify-center items-center bg-black bg-opacity-80 px-4 backdrop-blur-sm">
+      <div className="bg-dark-100 rounded-2xl shadow-xl max-w-4xl w-full relative overflow-hidden border border-light-100/10 h-[80vh] max-h-[600px]">
         {/* Close button */}
         <button
           onClick={() => setIsOpen(false)}
-          className="absolute top-4 right-4 text-gray-500 hover:text-gray-900 dark:hover:text-white transition"
+          className="absolute top-4 right-4 text-light-200 hover:text-white transition cursor-pointer p-2 rounded-full hover:bg-light-100/10"
           aria-label="Close modal"
         >
           <svg
@@ -58,7 +72,7 @@ Guidelines:
 
         <div className="flex flex-col md:flex-row">
           {/* Poster */}
-          <div className="md:w-1/3">
+          <div className="md:w-2/5 relative">
             <img
               src={
                 poster_path
@@ -66,75 +80,113 @@ Guidelines:
                   : "/no-movie.png"
               }
               alt={title}
-              className="rounded-t-2xl md:rounded-l-2xl md:rounded-tr-none w-full h-full object-cover"
+              className="w-full h-full object-cover max-h-[600px]"
             />
+            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-dark-100 to-transparent p-4">
+              <div className="flex items-center gap-2">
+                <div className="bg-light-100/10 backdrop-blur-sm rounded-full px-3 py-1 flex items-center gap-1">
+                  <img src="/star.svg" alt="Star icon" className="w-4 h-4" />
+                  <span className="text-white font-medium">
+                    {vote_average ? vote_average.toFixed(1) : "N/A"}
+                  </span>
+                </div>
+                <div className="bg-light-100/10 backdrop-blur-sm rounded-full px-3 py-1">
+                  <span className="text-white font-medium">
+                    {release_date ? release_date.split("-")[0] : "N/A"}
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Content */}
-          <div className="md:w-2/3 p-6 space-y-4">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-              {title}
-            </h2>
+          <div className="md:w-3/5 p-6 space-y-4 overflow-y-auto h-[600px]">
+            <div className="space-y-4">
+              <h2 className="text-3xl font-bold text-white">{title}</h2>
 
-            <div className="flex flex-wrap items-center text-sm text-gray-600 dark:text-gray-300 gap-4">
-              <div className="flex items-center gap-1">
-                <img src="/star.svg" alt="Star icon" className="w-4 h-4" />
-                <span>{vote_average ? vote_average.toFixed(1) : "N/A"}</span>
+              <div className="flex items-center gap-3 text-sm text-light-200">
+                <span className="capitalize">{original_language}</span>
+                <span className="w-1 h-1 rounded-full bg-light-200"></span>
+                <span>
+                  {overview?.length > 0
+                    ? `${Math.floor(overview.length / 100)} min read`
+                    : "Quick read"}
+                </span>
               </div>
-              <span className="text-gray-400">•</span>
-              <span>Language: {original_language.toUpperCase()}</span>
-              <span className="text-gray-400">•</span>
-              <span>
-                Released: {release_date ? release_date.split("-")[0] : "N/A"}
-              </span>
+
+              <p className="text-light-200 text-base leading-relaxed">
+                {overview || "No overview available."}
+              </p>
             </div>
 
-            <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">
-              {overview || "No overview available."}
-            </p>
-            <hr />
-            {isLoading ? (
-              <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">
-                Writing...
-              </p>
-            ) : (
-              <>
-                <div
-                  className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed"
-                  dangerouslySetInnerHTML={{ __html: sanitizedHTML }}
-                />
-                <hr />
-                <div className=" text-gray-700 dark:text-gray-300 ">
-                  <div className="w-full bg-light-100/5 px-2 py-1 rounded-lg mt-1 max-w-3xl mx-auto">
-                    <div className="relative flex items-center">
-                      <input
-                        type="text"
-                        value={chatInput}
-                        onChange={(e) => setChatInput(e.target.value)}
-                        placeholder={`Ask anything about ${title}`}
-                        className="w-full bg-transparent py-1 sm:pr-10 pl-1 text-base text-gray-200 placeholder-light-200 outline-hidden"
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter") {
-                            handleChatSubmit(friendlyResponse + chatInput);
+            <div className="border-t border-light-100/10 pt-4 ">
+              {isLoading ? (
+                <div className="flex items-center gap-2 text-light-200">
+                  <div className="w-4 h-4 rounded-full border-2 border-light-200 border-t-transparent animate-spin"></div>
+                  <span>Generating response...</span>
+                </div>
+              ) : (
+                <>
+                  <div
+                    className="text-light-200 text-base leading-relaxed prose prose-invert"
+                    dangerouslySetInnerHTML={{ __html: sanitizedHTML }}
+                  />
+
+                  <div className="border-t border-light-100/10 pt-4 space-y-4">
+                    <div className="space-y-2">
+                      {chatMessages && (
+                        <div className="text-light-100 bg-light-100/5 rounded-lg p-4">
+                          {chatMessages}
+                        </div>
+                      )}
+
+                      <div className="relative flex items-center">
+                        <input
+                          type="text"
+                          value={chatInput}
+                          onChange={(e) => setChatInput(e.target.value)}
+                          placeholder={`Ask about ${title}`}
+                          className="w-full bg-light-100/5 text-light-200 placeholder-light-200/50 rounded-lg py-3 pl-4 pr-12 focus:outline-none focus:ring-2 focus:ring-light-200/20 focus:border-transparent"
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              handleChatSubmit(fullPrompt);
+                              setChatInput("");
+                            }
+                          }}
+                        />
+                        <button
+                          onClick={() => {
+                            handleChatSubmit(fullPrompt);
                             setChatInput("");
-                          }
-                        }}
-                      />
-                      <button
-                        onClick={() => {
-                          handleChatSubmit(friendlyResponse + chatInput);
-                          setChatInput("");
-                        }}
-                        disabled={isChatMessagesLoading}
-                      >
-                        {isChatMessagesLoading ? "🔄" : "➡️"}
-                      </button>
+                          }}
+                          disabled={isChatMessagesLoading}
+                          className="absolute right-2 p-1 rounded-full hover:bg-light-100/10 transition"
+                        >
+                          {isChatMessagesLoading ? (
+                            <div className="w-6 h-6 rounded-full border-2 border-light-200 border-t-transparent animate-spin"></div>
+                          ) : (
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="h-6 w-6 text-light-200"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+                              />
+                            </svg>
+                          )}
+                        </button>
+                      </div>
                     </div>
                   </div>
-                  <p>{chatMessages}</p>
-                </div>
-              </>
-            )}
+                </>
+              )}
+            </div>
           </div>
         </div>
       </div>
