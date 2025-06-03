@@ -106,11 +106,14 @@ const App = () => {
     setResponse("");
 
     try {
-      let res = await fetch("http://localhost:5050/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: input }),
-      });
+      let res = await fetch(
+        `${import.meta.env.VITE_REACT_APP_FRONTEND_BASEURL}/api/chat`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ prompt: input }),
+        }
+      );
       let data = await res.json();
       if (res.ok) {
         setResponse(data.response);
@@ -132,11 +135,14 @@ const App = () => {
     setChatMessages("");
 
     try {
-      let res = await fetch("http://localhost:5050/api/chat", {
-        method: "POST",
-        headers: { "content-Type": "application/json" },
-        body: JSON.stringify({ prompt: message }),
-      });
+      let res = await fetch(
+        `${import.meta.env.VITE_REACT_APP_FRONTEND_BASEURL}/api/chat`,
+        {
+          method: "POST",
+          headers: { "content-Type": "application/json" },
+          body: JSON.stringify({ prompt: message }),
+        }
+      );
       let data = await res.json();
       if (res.ok) {
         setChatMessages(data.response);
