@@ -14,6 +14,10 @@ const openai = new OpenAI({
   apiKey: process.env.API_KEY,
 });
 
+app.get("/", (req, res) => {
+  res.json("Hello");
+});
+
 // Test route to confirm server is working
 app.get("/api/test", (req, res) => {
   res.json({ message: "✅ Backend is working fine!" });
